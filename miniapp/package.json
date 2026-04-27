@@ -1,0 +1,8 @@
+{
+  "name": "智勤考勤",
+  "version": "1.0.0",
+  "description": "智勤考勤钉钉小程序",
+  "main": "app.js",
+  "dependencies": {},
+  "devDependencies": {}
+}

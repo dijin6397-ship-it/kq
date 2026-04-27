@@ -1,0 +1,56 @@
+<view class="page">
+  <view class="current-card card">
+    <view class="current-header">
+      <text class="current-title">当前位置</text>
+      <text class="current-time">{{currentTime}}</text>
+    </view>
+    <view class="current-address">
+      <text class="address-text">{{currentAddress || '正在获取位置...'}}</text>
+      <text class="refresh-btn" bindtap="refreshLocation">刷新</text>
+    </view>
+    <view class="location-coords" wx:if="{{currentLocation}}">
+      <text>经度: {{currentLocation.longitude}}</text>
+      <text>纬度: {{currentLocation.latitude}}</text>
+    </view>
+  </view>
+
+  <view class="photo-card card">
+    <view class="photo-header">
+      <text class="photo-title">现场照片</text>
+    </view>
+    <view class="photo-preview" bindtap="takePhoto">
+      <image class="photo-image" wx:if="{{photoUrl}}" src="{{photoUrl}}" mode="aspectFill" />
+      <view class="photo-placeholder" wx:else>
+        <text class="photo-icon">+</text>
+        <text class="photo-text">点击拍照</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="remark-card card">
+    <view class="remark-header">
+      <text class="remark-title">备注</text>
+    </view>
+    <textarea class="remark-input" placeholder="请输入外勤备注（选填）" bindinput="onRemarkInput" />
+  </view>
+
+  <button class="btn-primary checkin-btn" bindtap="onCheckin">签到</button>
+
+  <view class="history-card card">
+    <view class="history-header">
+      <text class="history-title">签到历史</text>
+    </view>
+    <view class="history-list">
+      <view class="history-item" wx:for="{{historyList}}" wx:key="id">
+        <view class="history-info">
+          <text class="history-date">{{formatDate(item.checkInTime)}}</text>
+          <text class="history-address">{{item.address || '未知位置'}}</text>
+        </view>
+        <text class="history-time">{{formatTime(item.checkInTime)}}</text>
+      </view>
+      <view class="empty-state" wx:if="{{historyList.length === 0}}">
+        <text>暂无签到记录</text>
+      </view>
+    </view>
+  </view>
+</view>

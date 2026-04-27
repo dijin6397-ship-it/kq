@@ -1,0 +1,56 @@
+<view class="page">
+  <view class="profile-card">
+    <view class="avatar-section">
+      <image class="avatar" src="{{userInfo.avatar || '/assets/icons/avatar-default.png'}}" mode="aspectFill" />
+      <view class="user-info">
+        <text class="user-name">{{userInfo.name || '未登录'}}</text>
+        <text class="user-dept">{{userInfo.departmentName || '未知部门'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="menu-card card">
+    <view class="menu-item" bindtap="onMenuTap" data-type="schedule">
+      <image class="menu-icon" src="/assets/icons/schedule.png" />
+      <text class="menu-text">我的排班</text>
+      <text class="menu-arrow">▶</text>
+    </view>
+    <view class="menu-item" bindtap="onMenuTap" data-type="leave_balance">
+      <image class="menu-icon" src="/assets/icons/balance.png" />
+      <text class="menu-text">请假余额</text>
+      <text class="menu-arrow">▶</text>
+    </view>
+    <view class="menu-item" bindtap="onMenuTap" data-type="overtime_balance">
+      <image class="menu-icon" src="/assets/icons/overtime.png" />
+      <text class="menu-text">加班调休</text>
+      <text class="menu-arrow">▶</text>
+    </view>
+  </view>
+
+  <view class="menu-card card">
+    <view class="menu-item" bindtap="onMenuTap" data-type="notification">
+      <image class="menu-icon" src="/assets/icons/bell.png" />
+      <text class="menu-text">消息通知</text>
+      <view class="badge" wx:if="{{unreadCount > 0}}">{{unreadCount}}</view>
+      <text class="menu-arrow">▶</text>
+    </view>
+    <view class="menu-item" bindtap="onMenuTap" data-type="help">
+      <image class="menu-icon" src="/assets/icons/help.png" />
+      <text class="menu-text">帮助与反馈</text>
+      <text class="menu-arrow">▶</text>
+    </view>
+    <view class="menu-item" bindtap="onMenuTap" data-type="about">
+      <image class="menu-icon" src="/assets/icons/info.png" />
+      <text class="menu-text">关于系统</text>
+      <text class="menu-arrow">▶</text>
+    </view>
+  </view>
+
+  <view class="logout-section">
+    <button class="logout-btn" bindtap="onLogout">退出登录</button>
+  </view>
+
+  <view class="version-info">
+    <text>V1.0.0</text>
+  </view>
+</view>

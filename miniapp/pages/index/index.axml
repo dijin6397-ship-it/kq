@@ -1,0 +1,104 @@
+<view class="page">
+  <view class="header-card">
+    <view class="date-info">
+      <text class="weekday">{{weekday}}</text>
+      <text class="date">{{dateStr}}</text>
+    </view>
+    <view class="weather">
+      <text class="temperature">{{weather}}</text>
+    </view>
+  </view>
+
+  <view class="status-card card">
+    <view class="status-header">
+      <text class="status-title">打卡状态</text>
+      <text class="status-tag {{statusClass}}">{{statusText}}</text>
+    </view>
+
+    <view class="time-row">
+      <view class="time-item">
+        <text class="time-label">上班打卡</text>
+        <text class="time-value {{record.checkInResult === 'Normal' ? '' : 'text-danger'}}">
+          {{record.checkInTime || '--:--'}}
+        </text>
+        <text class="time-result {{record.checkInResult === 'Normal' ? 'text-success' : 'text-danger'}}">
+          {{record.checkInResult || '未打卡'}}
+        </text>
+      </view>
+      <view class="time-divider"></view>
+      <view class="time-item">
+        <text class="time-label">下班打卡</text>
+        <text class="time-value {{record.checkOutResult === 'Normal' ? '' : 'text-danger'}}">
+          {{record.checkOutTime || '--:--'}}
+        </text>
+        <text class="time-result {{record.checkOutResult === 'Normal' ? 'text-success' : 'text-danger'}}">
+          {{record.checkOutResult || '未打卡'}}
+        </text>
+      </view>
+    </view>
+
+    <view class="abnormal-info" wx:if="{{record.isLate || record.isEarlyLeave}}">
+      <view class="abnormal-item" wx:if="{{record.isLate}}">
+        <text class="abnormal-icon late-icon">迟到</text>
+        <text class="abnormal-text">迟到 {{record.lateMinutes}} 分钟</text>
+      </view>
+      <view class="abnormal-item" wx:if="{{record.isEarlyLeave}}">
+        <text class="abnormal-icon early-icon">早退</text>
+        <text class="abnormal-text">早退 {{record.earlyMinutes}} 分钟</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-card card">
+    <view class="action-row">
+      <button class="action-btn {{canCheckIn ? '' : 'disabled'}}" bindtap="onCheckIn" hover-class="none">
+        <image class="action-icon" src="/assets/icons/check-in.png" mode="aspectFit" />
+        <text class="action-text">上班打卡</text>
+        <text class="action-time">{{record.checkInTime || currentTime}}</text>
+      </button>
+
+      <button class="action-btn {{canCheckOut ? '' : 'disabled'}}" bindtap="onCheckOut" hover-class="none">
+        <image class="action-icon" src="/assets/icons/check-out.png" mode="aspectFit" />
+        <text class="action-text">下班打卡</text>
+        <text class="action-time">{{record.checkOutTime || currentTime}}</text>
+      </button>
+    </view>
+  </view>
+
+  <view class="quick-actions card">
+    <view class="quick-title">快捷操作</view>
+    <view class="quick-row">
+      <view class="quick-item" bindtap="goToLeave">
+        <image class="quick-icon" src="/assets/icons/leave.png" mode="aspectFit" />
+        <text class="quick-text">请假</text>
+      </view>
+      <view class="quick-item" bindtap="goToOvertime">
+        <image class="quick-icon" src="/assets/icons/overtime.png" mode="aspectFit" />
+        <text class="quick-text">加班</text>
+      </view>
+      <view class="quick-item" bindtap="goToPatchCard">
+        <image class="quick-icon" src="/assets/icons/patch.png" mode="aspectFit" />
+        <text class="quick-text">补卡</text>
+      </view>
+      <view class="quick-item" bindtap="goToFieldWork">
+        <image class="quick-icon" src="/assets/icons/field.png" mode="aspectFit" />
+        <text class="quick-text">外勤</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="announcement-card card">
+    <view class="announcement-header">
+      <text class="announcement-title">通知公告</text>
+    </view>
+    <view class="announcement-list">
+      <view class="announcement-item" wx:for="{{announcements}}" wx:key="id">
+        <text class="announcement-text">{{item.title}}</text>
+        <text class="announcement-date">{{item.date}}</text>
+      </view>
+      <view class="empty-state" wx:if="{{announcements.length === 0}}">
+        <text>暂无通知</text>
+      </view>
+    </view>
+  </view>
+</view>

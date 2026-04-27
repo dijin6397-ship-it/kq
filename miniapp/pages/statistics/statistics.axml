@@ -1,0 +1,66 @@
+<view class="page">
+  <view class="month-selector">
+    <view class="month-btn" bindtap="prevMonth">
+      <text class="arrow">◀</text>
+    </view>
+    <view class="month-display">
+      <text class="year">{{year}}</text>
+      <text class="month">{{month}}月</text>
+    </view>
+    <view class="month-btn" bindtap="nextMonth">
+      <text class="arrow">▶</text>
+    </view>
+  </view>
+
+  <view class="summary-card card">
+    <view class="summary-title">月度考勤汇总</view>
+    <view class="summary-grid">
+      <view class="summary-item">
+        <text class="summary-value">{{stats.shouldAttend}}</text>
+        <text class="summary-label">应出勤</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-value text-success">{{stats.actualAttend}}</text>
+        <text class="summary-label">实际出勤</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-value text-danger">{{stats.lateDays}}</text>
+        <text class="summary-label">迟到</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-value text-warning">{{stats.earlyLeaveDays}}</text>
+        <text class="summary-label">早退</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-value text-danger">{{stats.absentDays}}</text>
+        <text class="summary-label">缺勤</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-value text-primary">{{stats.leaveDays}}</text>
+        <text class="summary-label">请假</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="detail-card card">
+    <view class="detail-title">加班/调休</view>
+    <view class="detail-row">
+      <text class="detail-label">加班时数</text>
+      <text class="detail-value">{{stats.overtimeHours}} 小时</text>
+    </view>
+    <view class="detail-row">
+      <text class="detail-label">加班天数</text>
+      <text class="detail-value">{{stats.overtimeDays}} 天</text>
+    </view>
+  </view>
+
+  <view class="rate-card card">
+    <view class="rate-title">出勤率</view>
+    <view class="rate-circle">
+      <text class="rate-value">{{attendanceRate}}%</text>
+    </view>
+    <view class="rate-bar">
+      <view class="rate-fill" style="width: {{attendanceRate}}%"></view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,53 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/calendar/calendar",
+    "pages/statistics/statistics",
+    "pages/approval/approval",
+    "pages/field-work/field-work",
+    "pages/profile/profile"
+  ],
+  "subPackages": [],
+  "window": {
+    "defaultTitle": "智勤考勤",
+    "titleBarColor": "#1890ff",
+    "titleBarTextColor": "#ffffff"
+  },
+  "tabBar": {
+    "textColor": "#999999",
+    "selectedColor": "#1890ff",
+    "backgroundColor": "#ffffff",
+    "items": [
+      {
+        "pagePath": "pages/index/index",
+        "name": "打卡",
+        "icon": "assets/icons/check.png",
+        "activeIcon": "assets/icons/check-active.png"
+      },
+      {
+        "pagePath": "pages/calendar/calendar",
+        "name": "日历",
+        "icon": "assets/icons/calendar.png",
+        "activeIcon": "assets/icons/calendar-active.png"
+      },
+      {
+        "pagePath": "pages/statistics/statistics",
+        "name": "统计",
+        "icon": "assets/icons/statistics.png",
+        "activeIcon": "assets/icons/statistics-active.png"
+      },
+      {
+        "pagePath": "pages/approval/approval",
+        "name": "审批",
+        "icon": "assets/icons/approval.png",
+        "activeIcon": "assets/icons/approval-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "name": "我的",
+        "icon": "assets/icons/profile.png",
+        "activeIcon": "assets/icons/profile-active.png"
+      }
+    ]
+  }
+}

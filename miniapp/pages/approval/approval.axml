@@ -1,0 +1,194 @@
+<view class="page">
+  <view class="tab-bar">
+    <view
+      class="tab-item {{currentTab === 'list' ? 'active' : ''}}"
+      bindtap="switchTab"
+      data-tab="list"
+    >
+      我的申请
+    </view>
+    <view
+      class="tab-item {{currentTab === 'create' ? 'active' : ''}}"
+      bindtap="switchTab"
+      data-tab="create"
+    >
+      新建申请
+    </view>
+  </view>
+
+  <view class="tab-content" wx:if="{{currentTab === 'list'}}">
+    <view class="filter-bar">
+      <picker mode="selector" range="{{typeOptions}}" range-key="label" bindchange="onTypeChange">
+        <view class="filter-item">
+          <text>{{currentTypeLabel}}</text>
+          <text class="arrow">▼</text>
+        </view>
+      </picker>
+      <picker mode="selector" range="{{statusOptions}}" range-key="label" bindchange="onStatusChange">
+        <view class="filter-item">
+          <text>{{currentStatusLabel}}</text>
+          <text class="arrow">▼</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="approval-list">
+      <view class="approval-item card" wx:for="{{approvalList}}" wx:key="id" bindtap="onItemTap" data-item="{{item}}">
+        <view class="approval-header">
+          <text class="approval-type">{{getTypeName(item._type)}}</text>
+          <text class="approval-status {{item.status}}">{{getStatusName(item.status)}}</text>
+        </view>
+        <view class="approval-content">
+          <text class="approval-date">{{formatDate(item.startDate || item.overtimeDate || item.patchDate)}}</text>
+          <text class="approval-duration">{{getDuration(item)}}</text>
+        </view>
+        <view class="approval-time">
+          申请时间: {{formatDateTime(item.createdAt)}}
+        </view>
+      </view>
+
+      <view class="empty-state" wx:if="{{approvalList.length === 0}}">
+        <text>暂无申请记录</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="tab-content" wx:if="{{currentTab === 'create'}}">
+    <view class="type-selector">
+      <view
+        class="type-item {{createType === 'leave' ? 'active' : ''}}"
+        bindtap="onSelectCreateType"
+        data-type="leave"
+      >
+        <image class="type-icon" src="/assets/icons/leave.png" />
+        <text class="type-text">请假</text>
+      </view>
+      <view
+        class="type-item {{createType === 'overtime' ? 'active' : ''}}"
+        bindtap="onSelectCreateType"
+        data-type="overtime"
+      >
+        <image class="type-icon" src="/assets/icons/overtime.png" />
+        <text class="type-text">加班</text>
+      </view>
+      <view
+        class="type-item {{createType === 'patch_card' ? 'active' : ''}}"
+        bindtap="onSelectCreateType"
+        data-type="patch_card"
+      >
+        <image class="type-icon" src="/assets/icons/patch.png" />
+        <text class="type-text">补卡</text>
+      </view>
+      <view
+        class="type-item {{createType === 'business_trip' ? 'active' : ''}}"
+        bindtap="onSelectCreateType"
+        data-type="business_trip"
+      >
+        <image class="type-icon" src="/assets/icons/field.png" />
+        <text class="type-text">出差</text>
+      </view>
+    </view>
+
+    <view class="form-card card" wx:if="{{createType === 'leave'}}">
+      <view class="form-title">请假申请</view>
+      <view class="form-item">
+        <text class="form-label">请假类型</text>
+        <picker mode="selector" range="{{leaveTypeOptions}}" range-key="label" bindchange="onLeaveTypeChange">
+          <view class="form-value">{{leaveTypeLabel || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">开始日期</text>
+        <picker mode="date" bindchange="onLeaveStartDateChange">
+          <view class="form-value">{{formData.startDate || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">结束日期</text>
+        <picker mode="date" bindchange="onLeaveEndDateChange">
+          <view class="form-value">{{formData.endDate || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">时长</text>
+        <input class="form-input" type="number" placeholder="请输入天数" bindinput="onDurationInput" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">原因</text>
+        <textarea class="form-textarea" placeholder="请输入请假原因" bindinput="onReasonInput" />
+      </view>
+      <button class="btn-primary" bindtap="submitLeave">提交申请</button>
+    </view>
+
+    <view class="form-card card" wx:if="{{createType === 'overtime'}}">
+      <view class="form-title">加班申请</view>
+      <view class="form-item">
+        <text class="form-label">加班日期</text>
+        <picker mode="date" bindchange="onOvertimeDateChange">
+          <view class="form-value">{{formData.overtimeDate || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">加班类型</text>
+        <picker mode="selector" range="{{overtimeTypeOptions}}" range-key="label" bindchange="onOvertimeTypeChange">
+          <view class="form-value">{{overtimeTypeLabel || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">时长</text>
+        <input class="form-input" type="number" placeholder="请输入小时数" bindinput="onOvertimeHoursInput" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">原因</text>
+        <textarea class="form-textarea" placeholder="请输入加班原因" bindinput="onOvertimeReasonInput" />
+      </view>
+      <button class="btn-primary" bindtap="submitOvertime">提交申请</button>
+    </view>
+
+    <view class="form-card card" wx:if="{{createType === 'patch_card'}}">
+      <view class="form-title">补卡申请</view>
+      <view class="form-item">
+        <text class="form-label">补卡日期</text>
+        <picker mode="date" bindchange="onPatchDateChange">
+          <view class="form-value">{{formData.patchDate || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">补卡类型</text>
+        <picker mode="selector" range="{{patchTypeOptions}}" range-key="label" bindchange="onPatchTypeChange">
+          <view class="form-value">{{patchTypeLabel || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">原因</text>
+        <textarea class="form-textarea" placeholder="请输入补卡原因" bindinput="onPatchReasonInput" />
+      </view>
+      <button class="btn-primary" bindtap="submitPatchCard">提交申请</button>
+    </view>
+
+    <view class="form-card card" wx:if="{{createType === 'business_trip'}}">
+      <view class="form-title">出差申请</view>
+      <view class="form-item">
+        <text class="form-label">开始日期</text>
+        <picker mode="date" bindchange="onTripStartDateChange">
+          <view class="form-value">{{formData.startDate || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">结束日期</text>
+        <picker mode="date" bindchange="onTripEndDateChange">
+          <view class="form-value">{{formData.endDate || '请选择'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">目的地</text>
+        <input class="form-input" placeholder="请输入目的地" bindinput="onDestinationInput" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">原因</text>
+        <textarea class="form-textarea" placeholder="请输入出差原因" bindinput="onTripReasonInput" />
+      </view>
+      <button class="btn-primary" bindtap="submitBusinessTrip">提交申请</button>
+    </view>
+  </view>
+</view>
