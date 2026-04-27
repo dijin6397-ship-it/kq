@@ -1,0 +1,356 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  super_admin
+  admin
+  department_manager
+  employee
+}
+
+enum UserStatus {
+  active
+  disabled
+  resigned
+}
+
+enum ApprovalType {
+  leave
+  overtime
+  patch_card
+  business_trip
+}
+
+enum ApprovalStatus {
+  pending
+  approved
+  rejected
+  withdrawn
+}
+
+enum LeaveType {
+  annual
+  sick
+  personal
+  marriage
+  maternity
+  paternity
+  bereavement
+  compensatory
+  other
+}
+
+enum OvertimeDayType {
+  workday
+  weekend
+  holiday
+}
+
+model User {
+  id              Int        @id @default(autoincrement())
+  dingtalkUserId  String     @unique @map("dingtalk_user_id") @db.VarChar(64)
+  unionId         String?    @map("union_id") @db.VarChar(64)
+  name            String     @db.VarChar(64)
+  avatar          String?    @db.VarChar(512)
+  mobile          String?    @db.VarChar(20)
+  email           String?    @db.VarChar(128)
+  departmentId    Int?       @map("department_id")
+  departmentName  String?    @map("department_name") @db.VarChar(128)
+  role            UserRole   @default(employee)
+  status          UserStatus @default(active)
+  hireDate        DateTime?  @map("hire_date") @db.Date
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  attendanceRecords   AttendanceRecord[]
+  leaveRecords        LeaveRecord[]
+  overtimeRecords     OvertimeRecord[]
+  patchCardRecords    PatchCardRecord[]
+  fieldWorkRecords    FieldWorkRecord[]
+  scheduleAssignments ScheduleAssignment[]
+  approveLogs         ApproveLog[]
+  exportTasks         ExportTask[]
+
+  @@map("users")
+}
+
+model AttendanceRecord {
+  id              Int        @id @default(autoincrement())
+  userId          Int        @map("user_id")
+  dingtalkUserId  String     @map("dingtalk_user_id") @db.VarChar(64)
+  workDate        DateTime   @map("work_date") @db.Date
+  checkInTime     DateTime?  @map("check_in_time")
+  checkOutTime    DateTime?  @map("check_out_time")
+  checkInResult   String?    @map("check_in_result") @db.VarChar(32)
+  checkOutResult  String?    @map("check_out_result") @db.VarChar(32)
+  timeResult      String?    @map("time_result") @db.VarChar(32)
+  locationResult  String?    @map("location_result") @db.VarChar(32)
+  sourceType      String?    @map("source_type") @db.VarChar(32)
+  isLate          Boolean    @default(false) @map("is_late")
+  isEarlyLeave    Boolean    @default(false) @map("is_early_leave")
+  isAbsent        Boolean    @default(false) @map("is_absent")
+  lateMinutes     Int        @default(0) @map("late_minutes")
+  earlyMinutes    Int        @default(0) @map("early_minutes")
+  syncBatchId     String?    @map("sync_batch_id") @db.VarChar(64)
+  createdAt       DateTime   @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, workDate])
+  @@index([workDate])
+  @@map("attendance_records")
+}
+
+model LeaveRecord {
+  id                  Int            @id @default(autoincrement())
+  userId              Int            @map("user_id")
+  dingtalkUserId      String         @map("dingtalk_user_id") @db.VarChar(64)
+  leaveType           LeaveType      @map("leave_type")
+  startDate           DateTime       @map("start_date") @db.Date
+  endDate             DateTime       @map("end_date") @db.Date
+  startTimePeriod     String         @default("am") @map("start_time_period") @db.VarChar(16)
+  endTimePeriod       String         @default("pm") @map("end_time_period") @db.VarChar(16)
+  durationDays        Decimal        @default(0) @map("duration_days") @db.Decimal(4, 2)
+  reason              String         @db.Text
+  status              ApprovalStatus @default(pending)
+  approvalInstanceId  String?        @map("approval_instance_id") @db.VarChar(128)
+  approvalResult      String?        @map("approval_result") @db.VarChar(32)
+  approver            String?        @db.VarChar(64)
+  approvedAt          DateTime?      @map("approved_at")
+  createdAt           DateTime       @default(now()) @map("created_at")
+  updatedAt           DateTime       @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, startDate])
+  @@index([approvalInstanceId])
+  @@map("leave_records")
+}
+
+model OvertimeRecord {
+  id                 Int                 @id @default(autoincrement())
+  userId             Int                 @map("user_id")
+  dingtalkUserId     String              @map("dingtalk_user_id") @db.VarChar(64)
+  overtimeDate       DateTime            @map("overtime_date") @db.Date
+  startTime          DateTime            @map("start_time")
+  endTime            DateTime            @map("end_time")
+  durationHours      Decimal             @default(0) @map("duration_hours") @db.Decimal(4, 2)
+  dayType            OvertimeDayType     @map("day_type")
+  reason             String              @db.Text
+  status             ApprovalStatus      @default(pending)
+  approvalInstanceId String?             @map("approval_instance_id") @db.VarChar(128)
+  approvalResult     String?             @map("approval_result") @db.VarChar(32)
+  approver           String?             @db.VarChar(64)
+  approvedAt         DateTime?           @map("approved_at")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, overtimeDate])
+  @@index([approvalInstanceId])
+  @@map("overtime_records")
+}
+
+model PatchCardRecord {
+  id                 Int            @id @default(autoincrement())
+  userId             Int            @map("user_id")
+  dingtalkUserId     String         @map("dingtalk_user_id") @db.VarChar(64)
+  patchDate          DateTime       @map("patch_date") @db.Date
+  patchType          String         @map("patch_type") @db.VarChar(32)
+  targetTime         DateTime       @map("target_time")
+  reason             String         @db.Text
+  status             ApprovalStatus @default(pending)
+  approvalInstanceId String?        @map("approval_instance_id") @db.VarChar(128)
+  approvalResult     String?        @map("approval_result") @db.VarChar(32)
+  approver           String?        @db.VarChar(64)
+  approvedAt         DateTime?      @map("approved_at")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, patchDate])
+  @@index([approvalInstanceId])
+  @@map("patch_card_records")
+}
+
+model AttendanceGroup {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(128)
+  description String?  @db.VarChar(512)
+  workDays    String   @default("1,2,3,4,5") @map("work_days") @db.VarChar(32)
+  flexTime    Boolean  @default(false) @map("flex_time")
+  lateGrace   Int      @default(0) @map("late_grace")
+  earlyGrace  Int      @default(0) @map("early_grace")
+  absentLimit Int      @default(0) @map("absent_limit") @db.VarChar(16)
+  maxPatchCard Int     @default(3) @map("max_patch_card")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  locations AttendanceLocation[]
+  shifts    GroupShift[]
+
+  @@map("attendance_groups")
+}
+
+model AttendanceLocation {
+  id                Int       @id @default(autoincrement())
+  groupId           Int       @map("group_id")
+  name              String    @db.VarChar(128)
+  address           String?   @db.VarChar(512)
+  latitude          Decimal   @db.Decimal(10, 7)
+  longitude         Decimal   @db.Decimal(10, 7)
+  radius            Int       @default(300)
+  wifiMacs          String?   @map("wifi_macs") @db.VarChar(1024)
+  isActive          Boolean   @default(true) @map("is_active")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  group AttendanceGroup @relation(fields: [groupId], references: [id])
+
+  @@map("attendance_locations")
+}
+
+model Shift {
+  id             Int      @id @default(autoincrement())
+  name           String   @db.VarChar(128)
+  startTime      String   @map("start_time") @db.VarChar(8)
+  endTime        String   @map("end_time") @db.VarChar(8)
+  restStartTime  String?  @map("rest_start_time") @db.VarChar(8)
+  restEndTime    String?  @map("rest_end_time") @db.VarChar(8)
+  color          String?  @default("#409EFF") @db.VarChar(16)
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  groupShifts GroupShift[]
+
+  @@map("shifts")
+}
+
+model GroupShift {
+  id        Int      @id @default(autoincrement())
+  groupId   Int      @map("group_id")
+  shiftId   Int      @map("shift_id")
+  sortOrder Int      @default(0) @map("sort_order")
+
+  group AttendanceGroup @relation(fields: [groupId], references: [id])
+  shift Shift           @relation(fields: [shiftId], references: [id])
+
+  @@unique([groupId, shiftId])
+  @@map("group_shifts")
+}
+
+model ScheduleAssignment {
+  id         Int       @id @default(autoincrement())
+  userId     Int       @map("user_id")
+  shiftId    Int       @map("shift_id")
+  workDate   DateTime  @map("work_date") @db.Date
+  isHoliday  Boolean   @default(false) @map("is_holiday")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  user            User            @relation(fields: [userId], references: [id])
+  fieldWorkRecord FieldWorkRecord?
+
+  @@unique([userId, workDate])
+  @@index([workDate])
+  @@map("schedule_assignments")
+}
+
+model FieldWorkRecord {
+  id                Int      @id @default(autoincrement())
+  userId            Int      @map("user_id")
+  dingtalkUserId    String   @map("dingtalk_user_id") @db.VarChar(64)
+  scheduleId        Int      @unique @map("schedule_id")
+  checkInTime       DateTime @map("check_in_time")
+  latitude          Decimal  @db.Decimal(10, 7)
+  longitude         Decimal  @db.Decimal(10, 7)
+  address           String?  @db.VarChar(512)
+  photoUrl          String?  @map("photo_url") @db.VarChar(512)
+  remark            String?  @db.VarChar(1024)
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  user     User               @relation(fields: [userId], references: [id])
+  schedule ScheduleAssignment @relation(fields: [scheduleId], references: [id])
+
+  @@index([userId])
+  @@map("field_work_records")
+}
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  type        String   @db.VarChar(32)
+  title       String   @db.VarChar(256)
+  content     String   @db.Text
+  isRead      Boolean  @default(false) @map("is_read")
+  isSent      Boolean  @default(false) @map("is_sent")
+  sentAt      DateTime? @map("sent_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+model NotificationTemplate {
+  id         Int      @id @default(autoincrement())
+  code       String   @unique @db.VarChar(64)
+  name       String   @db.VarChar(128)
+  title      String   @db.VarChar(256)
+  content    String   @db.Text
+  isActive   Boolean  @default(true) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("notification_templates")
+}
+
+model ApproveLog {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @map("user_id")
+  action        String   @db.VarChar(32)
+  targetType    String   @map("target_type") @db.VarChar(32)
+  targetId      Int      @map("target_id")
+  ipAddress     String?  @map("ip_address") @db.VarChar(64)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("approve_logs")
+}
+
+model ExportTask {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  type        String   @db.VarChar(32)
+  format      String   @default("xlsx") @db.VarChar(16)
+  params      String?  @db.Text
+  fileUrl     String?  @map("file_url") @db.VarChar(512)
+  status      String   @default("pending") @db.VarChar(32)
+  progress    Int      @default(0)
+  errorMsg    String?  @map("error_msg") @db.Text
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("export_tasks")
+}
+
+model SystemConfig {
+  id         Int      @id @default(autoincrement())
+  key        String   @unique @db.VarChar(128)
+  value      String   @db.Text
+  remark     String?  @db.VarChar(512)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("system_configs")
+}
